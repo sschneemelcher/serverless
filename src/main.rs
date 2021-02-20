@@ -7,8 +7,9 @@ use std::time::Duration;
 
 
 fn main() {
-	let socket = UdpSocket::bind("127.0.0.1:8001").expect("couldn't bind to address");	
+	let socket = UdpSocket::bind("0.0.0.0:8000").expect("couldn't bind to address");	
 	socket.set_nonblocking(true).expect("could not set nonblocking");
+	socket.set_broadcast(true).expect("could not set broadcast");
 	let mut buf = [0u8; 1024];
 	let msg_mutex = Arc::new(Mutex::new(String::new()));	
 	let arc_mutex = Arc::clone(&msg_mutex);
@@ -24,7 +25,7 @@ fn main() {
 	loop { // check every 50 ms if there is a new message
 	        if *msg_mutex.lock().unwrap() != ""{ // checks the mutex for new user input to send
 			let mut msg = msg_mutex.lock().unwrap();
-			socket.send_to((*msg).as_bytes(), "127.0.0.1:8000").ok();
+			socket.send_to((*msg).as_bytes(), "255.255.255.255:8000").ok();
 			println!("You wrote: {}\n", *msg);
 			*msg = "".to_string();
 		}
